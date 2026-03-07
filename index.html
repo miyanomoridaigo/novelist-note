@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小説家のビジョン手帳</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Klee+One&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:        #FFFCF5;
+      --paper-line:   #DED6C6;
+      --paper-margin: #E8A0A0;
+      --ink:          #2C2A26;
+      --ink-mid:      #5A5550;
+      --ink-light:    #9A9590;
+      --tab1: #B8694A;
+      --tab2: #6A9E78;
+      --tab3: #6A85B2;
+      --tab4: #B59838;
+      --cover: #5A4535;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: #4A3728;
+      background-image:
+        radial-gradient(ellipse at 15% 40%, rgba(80,55,35,0.6) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 60%, rgba(35,25,15,0.5) 0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='3' height='3' fill='transparent'/%3E%3Ccircle cx='1.5' cy='1.5' r='0.6' fill='rgba(0,0,0,0.12)'/%3E%3C/svg%3E");
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    /* =====================
+       SETUP MODAL
+    ===================== */
+    #setupModal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(30,20,10,0.82);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #setupModal.hidden { display: none; }
+
+    .setup-card {
+      background: var(--paper);
+      border-radius: 10px;
+      padding: 40px 44px;
+      max-width: 540px; width: 100%;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .setup-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(to right, var(--tab1), var(--tab2), var(--tab3), var(--tab4));
+      border-radius: 10px 10px 0 0;
+    }
+
+    .setup-title {
+      font-family: 'Klee One', cursive;
+      font-size: 22px;
+      color: var(--ink);
+      margin-bottom: 6px;
+      margin-top: 10px;
+    }
+
+    .setup-sub {
+      font-size: 13px;
+      color: var(--ink-mid);
+      line-height: 1.9;
+      margin-bottom: 24px;
+    }
+
+    .setup-steps {
+      background: #F5EFE2;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: var(--ink-mid);
+      line-height: 2;
+    }
+
+    .setup-steps strong { color: var(--ink); }
+
+    .setup-card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      margin-bottom: 6px;
+      margin-top: 18px;
+      letter-spacing: 0.05em;
+    }
+
+    .setup-card textarea,
+    .setup-card input[type=text] {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #D8D0C0;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-family: 'Courier New', monospace;
+      background: #FDFAF5;
+      color: var(--ink);
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .setup-card textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    .setup-card input[type=text] {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+    }
+
+    .setup-card textarea:focus,
+    .setup-card input[type=text]:focus {
+      border-color: var(--tab1);
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: #C0392B;
+      min-height: 18px;
+      margin-top: 6px;
+    }
+
+    .btn-open {
+      margin-top: 24px;
+      width: 100%;
+      padding: 13px;
+      background: var(--tab1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: 'Klee One', cursive;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-open:hover { background: #9E5A3B; }
+    .btn-open:active { transform: scale(0.98); }
+
+    /* =====================
+       NOTEBOOK WRAPPER
+    ===================== */
+    .notebook-wrapper {
+      display: none;
+      width: 100%;
+      max-width: 860px;
+      min-height: 700px;
+      border-radius: 4px 10px 10px 4px;
+      box-shadow:
+        -10px 10px 35px rgba(0,0,0,0.5),
+        10px 5px 25px rgba(0,0,0,0.35),
+        0 2px 6px rgba(0,0,0,0.3);
+    }
+    .notebook-wrapper.visible { display: flex; }
+
+    /* =====================
+       SPIRAL BINDING
+    ===================== */
+    .spiral-binding {
+      width: 46px;
+      background: linear-gradient(to right, #181614 0%, #3A3530 50%, #2A2520 100%);
+      border-radius: 4px 0 0 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 22px 0;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .s-ring {
+      width: 30px;
+      height: 22px;
+      border: 3.5px solid #707070;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 2px rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    /* =====================
+       NOTEBOOK BODY
+    ===================== */
+    .notebook {
+      flex: 1;
+      background: var(--paper);
+      border-radius: 0 10px 10px 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* HEADER */
+    .nb-header {
+      background: #F2EBD8;
+      border-bottom: 2px solid #D8D0BC;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .nb-title-block .title {
+      font-family: 'Klee One', cursive;
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .nb-title-block .author {
+      font-size: 11.5px;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    .save-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      color: var(--ink-light);
+    }
+
+    .save-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #8EC47E;
+      transition: background 0.4s;
+    }
+    .save-dot.saving { background: #DEB048; animation: blink 0.9s infinite; }
+    .save-dot.error  { background: #D06060; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      padding: 12px 20px 0;
+      gap: 4px;
+      background: #EAE2CE;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 7px 7px 0 0;
+      font-size: 12.5px;
+      font-family: 'Klee One', cursive;
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      transition: opacity 0.15s, box-shadow 0.15s;
+      opacity: 0.72;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { opacity: 0.88; }
+
+    .tab-btn.active {
+      opacity: 1;
+      color: #fff;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
+    }
+
+    .tab-btn[data-tab="0"] { background: var(--tab1); }
+    .tab-btn[data-tab="1"] { background: var(--tab2); }
+    .tab-btn[data-tab="2"] { background: var(--tab3); }
+    .tab-btn[data-tab="3"] { background: var(--tab4); }
+
+    /* PAGES */
+    .page-area {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      scroll-behavior: smooth;
+    }
+
+    .page {
+      display: none;
+      padding: 32px 44px 48px 72px;
+      background-image:
+        linear-gradient(to right, var(--paper-margin) 1px, transparent 1px),
+        linear-gradient(var(--paper-line) 1px, transparent 1px);
+      background-size: 1px 100%, 100% 34px;
+      background-position: 55px 0, 0 33px;
+    }
+
+    .page.active { display: block; }
+
+    .sec-heading {
+      font-family: 'Klee One', cursive;
+      font-size: 19px;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      line-height: 34px;
+    }
+
+    .sec-icon {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sec-desc {
+      font-size: 12px;
+      color: var(--ink-light);
+      margin-top: -22px;
+      margin-bottom: 28px;
+      padding-left: 3px;
+      line-height: 34px;
+    }
+
+    .q-block { margin-bottom: 30px; }
+
+    .q-label {
+      font-family: 'Klee One', cursive;
+      font-size: 12.5px;
+      color: var(--ink-mid);
+      margin-bottom: 4px;
+      line-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .q-label::before {
+      content: '✦';
+      font-size: 9px;
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+
+    .q-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14.5px;
+      color: var(--ink);
+      resize: none;
+      line-height: 34px;
+      padding: 0;
+      outline: none;
+      overflow: hidden;
+      min-height: 34px;
+    }
+
+    .q-input::placeholder { color: #C8C0B0; font-size: 13.5px; }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed #D4CABB;
+      margin: 4px 0 28px;
+    }
+
+    /* FOOTER */
+    .nb-footer {
+      border-top: 1.5px solid #D8D0BC;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #F2EBD8;
+      flex-shrink: 0;
+    }
+
+    .last-saved-txt {
+      font-size: 11px;
+      color: var(--ink-light);
+    }
+
+    .reset-btn {
+      background: none;
+      border: none;
+      font-size: 11.5px;
+      color: var(--ink-light);
+      cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+      padding: 4px 10px;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { background: rgba(0,0,0,0.06); color: var(--ink-mid); }
+
+    /* SCROLLBAR */
+    .page-area::-webkit-scrollbar { width: 6px; }
+    .page-area::-webkit-scrollbar-track { background: #F5EDD8; }
+    .page-area::-webkit-scrollbar-thumb { background: #C8BCA8; border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      body { padding: 10px; }
+      .spiral-binding { width: 34px; }
+      .s-ring { width: 22px; }
+      .page { padding: 22px 18px 38px 54px; }
+      .tab-btn { padding: 7px 13px; font-size: 11px; }
+      .nb-header { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =================== SETUP MODAL =================== -->
+<div id="setupModal">
+  <div class="setup-card">
+    <div class="setup-title">📔 小説家のビジョン手帳</div>
+    <p class="setup-sub">
+      はじめに、Firebase設定とあなたの名前を入力してください。<br>
+      データはFirebase Firestoreに自動保存されます。
+    </p>
+
+    <div class="setup-steps">
+      <strong>Firebase設定の取得方法</strong><br>
+      ① <a href="https://console.firebase.google.com" target="_blank" style="color:var(--tab1)">Firebase Console</a> でプロジェクトを作成<br>
+      ② プロジェクト設定 → 「アプリを追加」→ ウェブ (＜/＞) を選択<br>
+      ③ 「Firebase SDK の追加」に表示される <code>firebaseConfig</code> の<br>
+      　 <code>{&nbsp;...&nbsp;}</code> 部分をコピーして以下に貼り付けてください<br>
+      ④ Firestore Database を作成し、テストモードで開始してください
+    </div>
+
+    <label>Firebase 設定オブジェクト（JSON）</label>
+    <textarea id="configInput" spellcheck="false" placeholder='{
+  "apiKey": "AIza...",
+  "authDomain": "your-project.firebaseapp.com",
+  "projectId": "your-project-id",
+  "storageBucket": "your-project.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123456789:web:abcdef"
+}'></textarea>
+    <div id="configError" class="error-msg"></div>
+
+    <label>あなたの名前 / ペンネーム</label>
+    <input type="text" id="authorInput" placeholder="例：夏目漱石　（保存キーとして使用されます）" autocomplete="off">
+
+    <button class="btn-open" id="setupBtn">手帳を開く →</button>
+  </div>
+</div>
+
+<!-- =================== NOTEBOOK =================== -->
+<div class="notebook-wrapper" id="notebookEl">
+
+  <!-- Spiral -->
+  <div class="spiral-binding" id="spiralEl"></div>
+
+  <!-- Notebook body -->
+  <div class="notebook">
+
+    <!-- Header -->
+    <div class="nb-header">
+      <div class="nb-title-block">
+        <div class="title">小説家のビジョン手帳</div>
+        <div class="author" id="authorDisplay">——</div>
+      </div>
+      <div class="save-indicator">
+        <div class="save-dot" id="saveDot"></div>
+        <span id="saveStatusTxt">保存済み</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="0">🔑 テーマと問い</button>
+      <button class="tab-btn"        data-tab="1">💚 届けたい感情・体験</button>
+      <button class="tab-btn"        data-tab="2">🌀 自分の核心・動機</button>
+      <button class="tab-btn"        data-tab="3">📮 理想の読者像</button>
+    </div>
+
+    <!-- Page area -->
+    <div class="page-area">
+
+      <!-- ===== PAGE 0: テーマと問い ===== -->
+      <div class="page active" data-page="0">
+        <div class="sec-heading">
+          <span class="sec-icon" style="background:var(--tab1)">🔑</span>
+          テーマと問い
+        </div>
+        <p class="sec-desc">作品の骨格となる「問い」と「テーマ」を言語化しましょう。</p>
+
+        <div class="q-block">
+          <div class="q-label">この作品が問いかける、核心的な「問い」は何ですか？</div>
+          <textarea class="q-input" id="f_theme_q" rows="2"
+            placeholder="例：人は本当に変われるのか。孤独の中でも愛は成立するのか。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">この物語を貫くテーマ・概念を一言で表すとしたら？</div>
+          <textarea class="q-input" id="f_theme_t" rows="2"
+            placeholder="例：「許し」「再生」「断絶と繋がり」「失われた時間」"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">読者に一緒に考えてほしいこと、問いかけたいことは？</div>
+          <textarea class="q-input" id="f_theme_r" rows="2"
+            placeholder="例：あなたの「普通」は誰かの「異常」かもしれない。選ばなかった人生はどこへ消えるのか。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">自由メモ（参考作品・引用・インスピレーションなど）</div>
+          <textarea class="q-input" id="f_theme_n" rows="4"
+            placeholder="テーマに関連するメモを自由に…"></textarea>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 1: 届けたい感情・体験 ===== -->
+      <div class="page" data-page="1">
+        <div class="sec-heading">
+          <span class="sec-icon" style="background:var(--tab2)">💚</span>
+          届けたい感情・体験
+        </div>
+        <p class="sec-desc">読者の心と体に刻みたい感情・体験を具体的に描き出しましょう。</p>
+
+        <div class="q-block">
+          <div class="q-label">読者に感じてほしい感情は何ですか？（3つまで）</div>
+          <textarea class="q-input" id="f_emo_f" rows="2"
+            placeholder="例：静かな哀愁、じわりとした希望、ぞくっとするような高揚感、安堵"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">読書中、どんな体験をしてほしいですか？</div>
+          <textarea class="q-input" id="f_emo_e" rows="2"
+            placeholder="例：現実を忘れて物語に没頭する体験。主人公と同化して涙を流す体験。知らない世界を旅する感覚。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">本を閉じた後、読者の心に残したいものは？</div>
+          <textarea class="q-input" id="f_emo_a" rows="2"
+            placeholder="例：何かに向き合う小さな勇気。ほんのりとした余韻。今まで見えなかったものへの気づき。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">自由メモ</div>
+          <textarea class="q-input" id="f_emo_n" rows="4"
+            placeholder="感情・体験に関連するメモを自由に…"></textarea>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 2: 自分の核心・動機 ===== -->
+      <div class="page" data-page="2">
+        <div class="sec-heading">
+          <span class="sec-icon" style="background:var(--tab3)">🌀</span>
+          自分の核心・創作動機
+        </div>
+        <p class="sec-desc">なぜあなたが書くのか。その根っこを掘り下げましょう。</p>
+
+        <div class="q-block">
+          <div class="q-label">なぜこの物語を、あなたが書くのですか？</div>
+          <textarea class="q-input" id="f_mot_w" rows="2"
+            placeholder="例：幼少期の孤独の記憶を昇華したい。誰にも言えなかった問いを形にしたい。世界への怒りを静めたい。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">この作品と、あなた自身との繋がりは？</div>
+          <textarea class="q-input" id="f_mot_c" rows="2"
+            placeholder="例：主人公の葛藤は、10年前の自分が抱えていたものだ。ある人との別れがこの物語の種になっている。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">あなたにしか書けない、この作品の「固有性」とは？</div>
+          <textarea class="q-input" id="f_mot_u" rows="2"
+            placeholder="例：地元の山村の細やかな風景と生活感。異なる価値観を持つ人物への深い共感。特定の時代の空気感。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">自由メモ（衝動・原風景・忘れたくない言葉など）</div>
+          <textarea class="q-input" id="f_mot_n" rows="4"
+            placeholder="創作の源泉に関するメモを自由に…"></textarea>
+        </div>
+      </div>
+
+      <!-- ===== PAGE 3: 理想の読者像 ===== -->
+      <div class="page" data-page="3">
+        <div class="sec-heading">
+          <span class="sec-icon" style="background:var(--tab4)">📮</span>
+          理想の読者像
+        </div>
+        <p class="sec-desc">この本を手に取る「あの人」の姿を、鮮明に思い描きましょう。</p>
+
+        <div class="q-block">
+          <div class="q-label">一番届けたい人は、どんな人ですか？（具体的に）</div>
+          <textarea class="q-input" id="f_rdr_w" rows="2"
+            placeholder="例：30代・仕事に行き詰まりを感じ始めた人。かつて夢を諦めた記憶を持つ人。自分の居場所を探している若者。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">その人が抱えている悩み・渇望・問いは何ですか？</div>
+          <textarea class="q-input" id="f_rdr_s" rows="2"
+            placeholder="例：「自分の人生はこれでよかったのか」という問い。誰かに「あなたは正しい」と言ってほしいという渇望。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">この本を読んだ後、その人の何が変わってほしいですか？</div>
+          <textarea class="q-input" id="f_rdr_c" rows="2"
+            placeholder="例：朝、少しだけ顔を上げて歩けるようになってほしい。自分を赦せるきっかけになってほしい。"></textarea>
+        </div>
+        <hr class="divider">
+
+        <div class="q-block">
+          <div class="q-label">その読者への手紙（自由に書いてみてください）</div>
+          <textarea class="q-input" id="f_rdr_n" rows="4"
+            placeholder="「この本を読んでくれているあなたへ…」"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /page-area -->
+
+    <!-- Footer -->
+    <div class="nb-footer">
+      <span class="last-saved-txt" id="lastSavedTxt">—</span>
+      <button class="reset-btn" id="resetBtn">⚙ 設定をリセット</button>
+    </div>
+
+  </div><!-- /notebook -->
+</div><!-- /notebook-wrapper -->
+
+
+<!-- =================== FIREBASE + APP LOGIC =================== -->
+<script type="module">
+  import { initializeApp, getApps, getApp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ── Field IDs ──────────────────────────────────────────────
+  const FIELDS = [
+    'f_theme_q','f_theme_t','f_theme_r','f_theme_n',
+    'f_emo_f',  'f_emo_e',  'f_emo_a',  'f_emo_n',
+    'f_mot_w',  'f_mot_c',  'f_mot_u',  'f_mot_n',
+    'f_rdr_w',  'f_rdr_s',  'f_rdr_c',  'f_rdr_n',
+  ];
+
+  let db = null;
+  let docId = '';
+  let saveTimer = null;
+
+  // ── Build spiral rings ─────────────────────────────────────
+  function buildSpiral() {
+    const el = document.getElementById('spiralEl');
+    for (let i = 0; i < 17; i++) {
+      const r = document.createElement('div');
+      r.className = 's-ring';
+      el.appendChild(r);
+    }
+  }
+
+  // ── Tab switching ─────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.tab);
+      document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+    });
+  });
+
+  // ── Save status ───────────────────────────────────────────
+  function setSaveStatus(state) {
+    const dot  = document.getElementById('saveDot');
+    const txt  = document.getElementById('saveStatusTxt');
+    dot.className = 'save-dot';
+    if (state === 'saving' || state === 'loading') {
+      dot.classList.add('saving');
+      txt.textContent = state === 'loading' ? '読み込み中…' : '保存中…';
+    } else if (state === 'saved') {
+      txt.textContent = '保存済み';
+    } else {
+      dot.classList.add('error');
+      txt.textContent = '保存エラー';
+    }
+  }
+
+  // ── Auto-resize textarea ──────────────────────────────────
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // ── Attach input listeners ────────────────────────────────
+  function attachListeners() {
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        autoResize(el);
+        setSaveStatus('saving');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveData, 1600);
+      });
+    });
+  }
+
+  // ── Load data from Firestore ──────────────────────────────
+  async function loadData() {
+    setSaveStatus('loading');
+    try {
+      const snap = await getDoc(doc(db, 'novelist_visions', docId));
+      if (snap.exists()) {
+        const data = snap.data();
+        FIELDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) {
+            el.value = data[id];
+            autoResize(el);
+          }
+        });
+        if (data.updatedAt?.toDate) {
+          const t = data.updatedAt.toDate();
+          document.getElementById('lastSavedTxt').textContent =
+            '最終保存: ' + t.toLocaleString('ja-JP');
+        }
+      }
+      setSaveStatus('saved');
+    } catch (e) {
+      console.error('Load error:', e);
+      setSaveStatus('error');
+    }
+  }
+
+  // ── Save data to Firestore ────────────────────────────────
+  async function saveData() {
+    if (!db) return;
+    setSaveStatus('saving');
+    const payload = { updatedAt: serverTimestamp() };
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) payload[id] = el.value;
+    });
+    try {
+      await setDoc(doc(db, 'novelist_visions', docId), payload, { merge: true });
+      const now = new Date().toLocaleString('ja-JP');
+      document.getElementById('lastSavedTxt').textContent = '最終保存: ' + now;
+      setSaveStatus('saved');
+    } catch (e) {
+      console.error('Save error:', e);
+      setSaveStatus('error');
+    }
+  }
+
+  // ── Parse Firebase config string ──────────────────────────
+  function parseConfig(raw) {
+    // Strip surrounding variable assignment if present
+    let s = raw.trim();
+    const match = s.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('JSON オブジェクト { } が見つかりません');
+    return JSON.parse(match[0]);
+  }
+
+  // ── Initialize the app ────────────────────────────────────
+  function initApp(config, author) {
+    try {
+      const appInstance = getApps().length === 0
+        ? initializeApp(config)
+        : getApp();
+      db = getFirestore(appInstance);
+      docId = encodeURIComponent(author.trim().toLowerCase().replace(/\s+/g, '_'));
+
+      document.getElementById('setupModal').classList.add('hidden');
+      const nb = document.getElementById('notebookEl');
+      nb.style.display = 'flex';
+      nb.classList.add('visible');
+      document.getElementById('authorDisplay').textContent = author;
+
+      buildSpiral();
+      loadData();
+      attachListeners();
+    } catch (e) {
+      document.getElementById('configError').textContent =
+        'Firebase 初期化エラー: ' + e.message;
+    }
+  }
+
+  // ── Setup button ──────────────────────────────────────────
+  document.getElementById('setupBtn').addEventListener('click', () => {
+    const raw    = document.getElementById('configInput').value;
+    const author = document.getElementById('authorInput').value.trim();
+    const errEl  = document.getElementById('configError');
+    errEl.textContent = '';
+
+    if (!author) { errEl.textContent = '名前を入力してください。'; return; }
+
+    let config;
+    try {
+      config = parseConfig(raw);
+    } catch (e) {
+      errEl.textContent = 'JSON 形式エラー: ' + e.message; return;
+    }
+
+    if (!config.projectId || !config.apiKey) {
+      errEl.textContent = 'projectId と apiKey が必要です。'; return;
+    }
+
+    localStorage.setItem('vnb_config', JSON.stringify(config));
+    localStorage.setItem('vnb_author', author);
+    initApp(config, author);
+  });
+
+  // ── Reset ─────────────────────────────────────────────────
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (confirm('設定をリセットしますか？（Firestore 上のデータは残ります）')) {
+      localStorage.removeItem('vnb_config');
+      localStorage.removeItem('vnb_author');
+      location.reload();
+    }
+  });
+
+  // ── Auto-load from localStorage ───────────────────────────
+  const savedCfg    = localStorage.getItem('vnb_config');
+  const savedAuthor = localStorage.getItem('vnb_author');
+  if (savedCfg && savedAuthor) {
+    try {
+      const cfg = JSON.parse(savedCfg);
+      document.getElementById('configInput').value = JSON.stringify(cfg, null, 2);
+      document.getElementById('authorInput').value  = savedAuthor;
+      initApp(cfg, savedAuthor);
+    } catch (_) { /* fall through to show modal */ }
+  }
+</script>
+</body>
+</html>
