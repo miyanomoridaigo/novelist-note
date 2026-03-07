@@ -13,7 +13,7 @@
     :root {
       --paper:        #FFFCF5;
       --paper-line:   #DED6C6;
-      --paper-margin: #D99090;   /* red margin line */
+      --paper-margin: #D99090;
       --ink:          #2C2A26;
       --ink-mid:      #5A5550;
       --ink-light:    #9A9590;
@@ -21,6 +21,9 @@
       --tab2: #6A9E78;
       --tab3: #6A85B2;
       --tab4: #B59838;
+      --shelf-bg:     #2E2218;
+      --shelf-hover:  #3D2E20;
+      --shelf-active: #4E3A28;
     }
 
     html, body { height: 100%; }
@@ -59,88 +62,222 @@
       box-shadow: 0 24px 70px rgba(0,0,0,0.5);
       position: relative;
     }
-
     .setup-card::before {
-      content: '';
-      position: absolute;
+      content: ''; position: absolute;
       top: 0; left: 0; right: 0; height: 6px;
       background: linear-gradient(to right, var(--tab1), var(--tab2), var(--tab3), var(--tab4));
       border-radius: 10px 10px 0 0;
     }
-
-    .setup-title {
-      font-family: 'Klee One', cursive;
-      font-size: 22px; color: var(--ink);
-      margin-bottom: 6px; margin-top: 10px;
-    }
-
-    .setup-sub {
-      font-size: 13px; color: var(--ink-mid);
-      line-height: 1.9; margin-bottom: 20px;
-    }
-
-    .setup-steps {
-      background: #F5EFE2;
-      border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;
-      font-size: 12px; color: var(--ink-mid); line-height: 2;
-    }
+    .setup-title { font-family: 'Klee One', cursive; font-size: 22px; color: var(--ink); margin-bottom: 6px; margin-top: 10px; }
+    .setup-sub   { font-size: 13px; color: var(--ink-mid); line-height: 1.9; margin-bottom: 20px; }
+    .setup-steps { background: #F5EFE2; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px; font-size: 12px; color: var(--ink-mid); line-height: 2; }
     .setup-steps strong { color: var(--ink); }
     .setup-steps a { color: var(--tab1); }
-
-    .setup-card label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: var(--ink-mid); margin-bottom: 6px; margin-top: 18px;
-      letter-spacing: 0.05em;
-    }
-
+    .setup-card label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; margin-top: 18px; letter-spacing: 0.05em; }
     .setup-card textarea,
-    .setup-card input[type=text] {
-      width: 100%; padding: 10px 13px;
-      border: 1.5px solid #D8D0C0; border-radius: 7px;
-      font-size: 12.5px; font-family: 'Courier New', monospace;
-      background: #FDFAF5; color: var(--ink);
-      transition: border-color 0.2s; outline: none;
-    }
+    .setup-card input[type=text] { width: 100%; padding: 10px 13px; border: 1.5px solid #D8D0C0; border-radius: 7px; font-size: 12.5px; font-family: 'Courier New', monospace; background: #FDFAF5; color: var(--ink); transition: border-color 0.2s; outline: none; }
     .setup-card textarea { height: 120px; resize: vertical; }
     .setup-card input[type=text] { font-family: 'Noto Serif JP', serif; font-size: 14px; }
     .setup-card textarea:focus,
     .setup-card input[type=text]:focus { border-color: var(--tab1); }
-
     .error-msg { font-size: 12px; color: #C0392B; min-height: 18px; margin-top: 6px; }
-
-    .btn-open {
-      margin-top: 24px; width: 100%; padding: 13px;
-      background: var(--tab1); color: #fff; border: none;
-      border-radius: 8px; font-size: 15px;
-      font-family: 'Klee One', cursive; cursor: pointer;
-      transition: background 0.2s, transform 0.1s; letter-spacing: 0.05em;
-    }
+    .btn-open { margin-top: 24px; width: 100%; padding: 13px; background: var(--tab1); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-family: 'Klee One', cursive; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.05em; }
     .btn-open:hover { background: #9E5A3B; }
     .btn-open:active { transform: scale(0.98); }
+
+    /* =====================
+       NEW PROJECT MODAL
+    ===================== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(20,12,6,0.72);
+      backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: var(--paper); border-radius: 10px; padding: 32px 36px;
+      max-width: 400px; width: 100%;
+      box-shadow: 0 16px 50px rgba(0,0,0,0.45);
+      position: relative;
+    }
+    .modal-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(to right, var(--tab1), var(--tab4));
+      border-radius: 10px 10px 0 0;
+    }
+    .modal-card h3 { font-family: 'Klee One', cursive; font-size: 17px; color: var(--ink); margin-bottom: 18px; margin-top: 6px; }
+    .modal-card input[type=text] { width: 100%; padding: 10px 13px; border: 1.5px solid #D8D0C0; border-radius: 7px; font-size: 14px; font-family: 'Noto Serif JP', serif; background: #FDFAF5; color: var(--ink); outline: none; transition: border-color 0.2s; }
+    .modal-card input[type=text]:focus { border-color: var(--tab1); }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .modal-btns button { padding: 9px 22px; border-radius: 7px; border: none; font-size: 13.5px; font-family: 'Klee One', cursive; cursor: pointer; transition: background 0.15s; }
+    .btn-cancel { background: #EAE2D4; color: var(--ink-mid); }
+    .btn-cancel:hover { background: #DDD5C6; }
+    .btn-create { background: var(--tab1); color: #fff; }
+    .btn-create:hover { background: #9E5A3B; }
+
+    /* =====================
+       APP LAYOUT
+    ===================== */
+    #appEl {
+      display: none;
+      width: 100%; max-width: 1080px;
+      min-height: 700px;
+      gap: 0;
+      border-radius: 6px 10px 10px 6px;
+      box-shadow: -10px 10px 40px rgba(0,0,0,0.55), 10px 5px 25px rgba(0,0,0,0.4);
+    }
+    #appEl.visible { display: flex; }
+
+    /* =====================
+       SHELF (project sidebar)
+    ===================== */
+    .shelf {
+      width: 190px;
+      min-width: 190px;
+      background: var(--shelf-bg);
+      border-radius: 6px 0 0 6px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    .shelf-header {
+      padding: 18px 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .shelf-header-title {
+      font-family: 'Klee One', cursive;
+      font-size: 12px; color: rgba(255,255,255,0.45);
+      letter-spacing: 0.08em;
+    }
+    .shelf-author {
+      padding: 8px 14px 10px;
+      font-size: 11px; color: rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .btn-add-proj {
+      width: 26px; height: 26px;
+      border-radius: 6px; border: none;
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.65);
+      font-size: 18px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-add-proj:hover { background: var(--tab1); color: #fff; }
+
+    .proj-list {
+      flex: 1; overflow-y: auto; padding: 8px 0;
+    }
+    .proj-list::-webkit-scrollbar { width: 4px; }
+    .proj-list::-webkit-scrollbar-track { background: transparent; }
+    .proj-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .proj-item {
+      display: flex; align-items: center;
+      padding: 9px 10px 9px 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+      gap: 6px;
+    }
+    .proj-item:hover { background: var(--shelf-hover); }
+    .proj-item.active {
+      background: var(--shelf-active);
+      border-left-color: var(--tab1);
+    }
+
+    .proj-icon { font-size: 13px; flex-shrink: 0; opacity: 0.7; }
+    .proj-item.active .proj-icon { opacity: 1; }
+
+    .proj-info { flex: 1; min-width: 0; }
+    .proj-title {
+      font-size: 12.5px; color: rgba(255,255,255,0.65);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+    .proj-item.active .proj-title { color: rgba(255,255,255,0.92); }
+    .proj-date {
+      font-size: 10px; color: rgba(255,255,255,0.28);
+      margin-top: 2px;
+    }
+    .proj-item.active .proj-date { color: rgba(255,255,255,0.4); }
+
+    .proj-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .proj-item:hover .proj-actions,
+    .proj-item.active .proj-actions { opacity: 1; }
+
+    .proj-action-btn {
+      width: 20px; height: 20px;
+      border: none; background: transparent;
+      border-radius: 4px;
+      color: rgba(255,255,255,0.35);
+      font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .proj-action-btn:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); }
+    .proj-action-btn.del:hover { background: rgba(200,70,70,0.3); color: #F08080; }
+
+    /* Rename inline input */
+    .proj-rename-input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 4px;
+      color: #fff; font-size: 12.5px;
+      font-family: 'Noto Serif JP', serif;
+      padding: 2px 6px; outline: none;
+    }
+    .proj-rename-input:focus { border-color: var(--tab1); }
+
+    .shelf-empty {
+      padding: 24px 14px;
+      font-size: 12px; color: rgba(255,255,255,0.28);
+      text-align: center; line-height: 1.8;
+    }
+
+    .shelf-footer {
+      padding: 10px 14px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .shelf-reset-btn {
+      background: none; border: none; font-size: 11px;
+      color: rgba(255,255,255,0.25); cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+      padding: 4px 6px; border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .shelf-reset-btn:hover { color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); }
 
     /* =====================
        NOTEBOOK WRAPPER
     ===================== */
     .notebook-wrapper {
-      display: none;
-      width: 100%; max-width: 860px; min-height: 700px;
-      border-radius: 4px 10px 10px 4px;
-      box-shadow: -10px 10px 35px rgba(0,0,0,0.5), 10px 5px 25px rgba(0,0,0,0.35);
+      display: flex;
+      flex: 1; min-width: 0;
+      min-height: 700px;
     }
-    .notebook-wrapper.visible { display: flex; }
 
     /* =====================
        SPIRAL BINDING
     ===================== */
     .spiral-binding {
-      width: 46px;
+      width: 44px; min-width: 44px;
       background: linear-gradient(to right, #181614 0%, #3A3530 50%, #2A2520 100%);
-      border-radius: 4px 0 0 10px;
       display: flex; flex-direction: column; align-items: center;
       padding: 22px 0; gap: 6px; flex-shrink: 0;
     }
     .s-ring {
-      width: 30px; height: 22px;
+      width: 28px; height: 22px;
       border: 3.5px solid #707070; border-radius: 50%;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 2px rgba(255,255,255,0.08);
       flex-shrink: 0;
@@ -153,35 +290,28 @@
       flex: 1; background: var(--paper);
       border-radius: 0 10px 10px 0;
       display: flex; flex-direction: column;
-      overflow: hidden; min-height: 0;
+      overflow: hidden; min-height: 0; min-width: 0;
     }
 
     /* HEADER */
     .nb-header {
       background: #F2EBD8; border-bottom: 2px solid #D8D0BC;
-      padding: 14px 28px; display: flex; align-items: center;
-      justify-content: space-between; flex-shrink: 0;
+      padding: 13px 24px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0; gap: 10px;
     }
-    .nb-title-block .title { font-family: 'Klee One', cursive; font-size: 17px; color: var(--ink); }
-    .nb-title-block .author { font-size: 11.5px; color: var(--ink-light); margin-top: 2px; }
+    .nb-title-block { min-width: 0; flex: 1; }
+    .nb-title-block .title { font-family: 'Klee One', cursive; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nb-title-block .subtitle { font-size: 11px; color: var(--ink-light); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .save-indicator { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--ink-light); }
+    .save-indicator { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-light); flex-shrink: 0; }
     .save-dot { width: 8px; height: 8px; border-radius: 50%; background: #8EC47E; transition: background 0.4s; }
     .save-dot.saving { background: #DEB048; animation: blink 0.9s infinite; }
     .save-dot.error  { background: #D06060; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
     /* TABS */
-    .tabs {
-      display: flex; padding: 12px 20px 0; gap: 4px;
-      background: #EAE2CE; flex-shrink: 0; flex-wrap: wrap;
-    }
-    .tab-btn {
-      padding: 8px 20px; border: none; border-radius: 7px 7px 0 0;
-      font-size: 12.5px; font-family: 'Klee One', cursive;
-      color: rgba(255,255,255,0.85); cursor: pointer;
-      transition: opacity 0.15s; opacity: 0.72; white-space: nowrap;
-    }
+    .tabs { display: flex; padding: 12px 16px 0; gap: 3px; background: #EAE2CE; flex-shrink: 0; flex-wrap: wrap; }
+    .tab-btn { padding: 7px 16px; border: none; border-radius: 7px 7px 0 0; font-size: 12px; font-family: 'Klee One', cursive; color: rgba(255,255,255,0.85); cursor: pointer; transition: opacity 0.15s; opacity: 0.72; white-space: nowrap; }
     .tab-btn:hover { opacity: 0.88; }
     .tab-btn.active { opacity: 1; color: #fff; box-shadow: 0 -2px 8px rgba(0,0,0,0.12); }
     .tab-btn[data-tab="0"] { background: var(--tab1); }
@@ -190,104 +320,59 @@
     .tab-btn[data-tab="3"] { background: var(--tab4); }
 
     /* =====================
-       PAGE  ←【修正箇所】
-       背景は
-         1. 水平の罫線（34pxピッチ）
-         2. 縦の赤い余白線（55px位置に1本だけ）
-       1pxタイルの誤りを full-width グラデーションに修正
+       PAGES
     ===================== */
-    .page-area {
-      flex: 1; overflow-y: auto; min-height: 0; scroll-behavior: smooth;
+    .page-area { flex: 1; overflow-y: auto; min-height: 0; scroll-behavior: smooth; }
+    .page-area::-webkit-scrollbar { width: 6px; }
+    .page-area::-webkit-scrollbar-track { background: #F5EDD8; }
+    .page-area::-webkit-scrollbar-thumb { background: #C8BCA8; border-radius: 3px; }
+
+    /* Empty state */
+    .no-project-msg {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; min-height: 400px;
+      color: var(--ink-light); text-align: center; padding: 40px;
+      gap: 12px;
     }
+    .no-project-msg .big-icon { font-size: 48px; opacity: 0.4; }
+    .no-project-msg p { font-size: 14px; line-height: 1.8; }
 
     .page {
       display: none;
-      padding: 32px 44px 48px 72px;
-
-      /* ✅ 水平の罫線：34px ピッチ */
+      padding: 30px 40px 48px 68px;
       background-image:
         linear-gradient(var(--paper-line) 1px, transparent 1px),
-        /* ✅ 縦の赤い余白線：55px〜56px の位置に1本だけ */
-        linear-gradient(to right,
-          transparent 55px,
-          var(--paper-margin) 55px,
-          var(--paper-margin) 56px,
-          transparent 56px
-        );
+        linear-gradient(to right, transparent 52px, var(--paper-margin) 52px, var(--paper-margin) 53px, transparent 53px);
       background-size: 100% 34px, 100% 100%;
       background-position: 0 33px, 0 0;
       background-repeat: repeat-y, no-repeat;
     }
     .page.active { display: block; }
 
-    /* SECTION HEADING */
-    .sec-heading {
-      font-family: 'Klee One', cursive; font-size: 19px; color: var(--ink);
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 30px; line-height: 34px;
-    }
-    .sec-icon {
-      width: 30px; height: 30px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; color: #fff; flex-shrink: 0;
-    }
-    .sec-desc {
-      font-size: 12px; color: var(--ink-light);
-      margin-top: -22px; margin-bottom: 28px;
-      padding-left: 3px; line-height: 34px;
-    }
+    /* SECTION */
+    .sec-heading { font-family: 'Klee One', cursive; font-size: 18px; color: var(--ink); display: flex; align-items: center; gap: 12px; margin-bottom: 28px; line-height: 34px; }
+    .sec-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0; }
+    .sec-desc { font-size: 12px; color: var(--ink-light); margin-top: -22px; margin-bottom: 26px; padding-left: 3px; line-height: 34px; }
 
-    /* QUESTION BLOCKS */
-    .q-block { margin-bottom: 30px; }
-    .q-label {
-      font-family: 'Klee One', cursive; font-size: 12.5px; color: var(--ink-mid);
-      margin-bottom: 4px; line-height: 34px;
-      display: flex; align-items: center; gap: 8px;
-    }
+    .q-block { margin-bottom: 28px; }
+    .q-label { font-family: 'Klee One', cursive; font-size: 12.5px; color: var(--ink-mid); margin-bottom: 4px; line-height: 34px; display: flex; align-items: center; gap: 8px; }
     .q-label::before { content: '✦'; font-size: 9px; opacity: 0.5; flex-shrink: 0; }
 
-    /* =====================
-       TEXTAREA（入力フォーム）
-       背景は完全に透明にしてページ背景が透けるようにする
-    ===================== */
-    .q-input {
-      width: 100%; border: none;
-      background: transparent;           /* ページの罫線が透けて見える */
-      font-family: 'Noto Serif JP', serif;
-      font-size: 14.5px; color: var(--ink);
-      resize: none; line-height: 34px;
-      padding: 0; outline: none; overflow: hidden; min-height: 34px;
-    }
-    .q-input::placeholder { color: #C0B8A8; font-size: 13.5px; }
-
-    .divider { border: none; border-top: 1px dashed #D4CABB; margin: 4px 0 28px; }
+    .q-input { width: 100%; border: none; background: transparent; font-family: 'Noto Serif JP', serif; font-size: 14px; color: var(--ink); resize: none; line-height: 34px; padding: 0; outline: none; overflow: hidden; min-height: 34px; }
+    .q-input::placeholder { color: #C0B8A8; font-size: 13px; }
+    .divider { border: none; border-top: 1px dashed #D4CABB; margin: 4px 0 26px; }
 
     /* FOOTER */
-    .nb-footer {
-      border-top: 1.5px solid #D8D0BC; padding: 10px 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: #F2EBD8; flex-shrink: 0;
-    }
+    .nb-footer { border-top: 1.5px solid #D8D0BC; padding: 9px 20px; display: flex; align-items: center; justify-content: space-between; background: #F2EBD8; flex-shrink: 0; }
     .last-saved-txt { font-size: 11px; color: var(--ink-light); }
-    .reset-btn {
-      background: none; border: none; font-size: 11.5px; color: var(--ink-light);
-      cursor: pointer; font-family: 'Noto Serif JP', serif;
-      padding: 4px 10px; border-radius: 4px; transition: background 0.2s, color 0.2s;
-    }
-    .reset-btn:hover { background: rgba(0,0,0,0.06); color: var(--ink-mid); }
 
-    /* SCROLLBAR */
-    .page-area::-webkit-scrollbar { width: 6px; }
-    .page-area::-webkit-scrollbar-track { background: #F5EDD8; }
-    .page-area::-webkit-scrollbar-thumb { background: #C8BCA8; border-radius: 3px; }
-
-    @media (max-width: 640px) {
+    @media (max-width: 720px) {
       body { padding: 10px; }
-      .spiral-binding { width: 34px; }
+      .shelf { width: 150px; min-width: 150px; }
+      .spiral-binding { width: 34px; min-width: 34px; }
       .s-ring { width: 22px; }
-      .page { padding: 22px 18px 38px 60px; }
-      .tab-btn { padding: 7px 13px; font-size: 11px; }
-      .nb-header { padding: 12px 16px; }
+      .page { padding: 20px 16px 36px 56px; }
+      .tab-btn { padding: 7px 11px; font-size: 11px; }
     }
   </style>
 </head>
@@ -297,17 +382,13 @@
 <div id="setupModal">
   <div class="setup-card">
     <div class="setup-title">📔 小説家のビジョン手帳</div>
-    <p class="setup-sub">
-      はじめに、Firebase設定とあなたの名前を入力してください。<br>
-      データはFirebase Firestoreに自動保存されます。
-    </p>
+    <p class="setup-sub">はじめに、Firebase設定とあなたの名前を入力してください。<br>データはFirebase Firestoreに自動保存されます。</p>
     <div class="setup-steps">
       <strong>Firebase設定の取得方法</strong><br>
       ① <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> でプロジェクトを作成<br>
       ② プロジェクト設定 → 「アプリを追加」→ ウェブ (＜/＞) を選択<br>
-      ③ 「Firebase SDK の追加」に表示される <code>firebaseConfig</code> の<br>
-      　 <code>{ ... }</code> 部分をコピーして以下に貼り付けてください<br>
-      ④ Firestore Database を作成し、テストモードで開始してください
+      ③ 表示される <code>firebaseConfig</code> の <code>{ ... }</code> をコピー<br>
+      ④ Firestore Database を作成し、テストモードで開始
     </div>
     <label>Firebase 設定オブジェクト（JSON）</label>
     <textarea id="configInput" spellcheck="false" placeholder='{
@@ -320,188 +401,196 @@
 }'></textarea>
     <div id="configError" class="error-msg"></div>
     <label>あなたの名前 / ペンネーム</label>
-    <input type="text" id="authorInput" placeholder="例：夏目漱石　（保存キーとして使用されます）" autocomplete="off">
+    <input type="text" id="authorInput" placeholder="例：夏目漱石" autocomplete="off">
     <button class="btn-open" id="setupBtn">手帳を開く →</button>
   </div>
 </div>
 
-<!-- =================== NOTEBOOK =================== -->
-<div class="notebook-wrapper" id="notebookEl">
-
-  <div class="spiral-binding" id="spiralEl"></div>
-
-  <div class="notebook">
-
-    <!-- Header -->
-    <div class="nb-header">
-      <div class="nb-title-block">
-        <div class="title">小説家のビジョン手帳</div>
-        <div class="author" id="authorDisplay">——</div>
-      </div>
-      <div class="save-indicator">
-        <div class="save-dot" id="saveDot"></div>
-        <span id="saveStatusTxt">保存済み</span>
-      </div>
+<!-- =================== NEW PROJECT MODAL =================== -->
+<div id="newProjModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h3>📖 新しい作品を追加</h3>
+    <input type="text" id="newProjTitle" placeholder="作品タイトルを入力…" autocomplete="off" maxlength="40">
+    <div class="modal-btns">
+      <button class="btn-cancel" id="newProjCancel">キャンセル</button>
+      <button class="btn-create" id="newProjCreate">作成する</button>
     </div>
+  </div>
+</div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="0">🔑 テーマと問い</button>
-      <button class="tab-btn"        data-tab="1">💚 届けたい感情・体験</button>
-      <button class="tab-btn"        data-tab="2">🌀 自分の核心・動機</button>
-      <button class="tab-btn"        data-tab="3">📮 理想の読者像</button>
+<!-- =================== APP =================== -->
+<div id="appEl">
+
+  <!-- ── Shelf ── -->
+  <div class="shelf">
+    <div class="shelf-header">
+      <span class="shelf-header-title">作品一覧</span>
+      <button class="btn-add-proj" id="addProjBtn" title="新しい作品を追加">＋</button>
     </div>
-
-    <!-- Pages -->
-    <div class="page-area">
-
-      <!-- PAGE 0: テーマと問い -->
-      <div class="page active" data-page="0">
-        <div class="sec-heading">
-          <span class="sec-icon" style="background:var(--tab1)">🔑</span>テーマと問い
-        </div>
-        <p class="sec-desc">作品の骨格となる「問い」と「テーマ」を言語化しましょう。</p>
-
-        <div class="q-block">
-          <div class="q-label">この作品が問いかける、核心的な「問い」は何ですか？</div>
-          <textarea class="q-input" id="f_theme_q" rows="2"
-            placeholder="例：人は本当に変われるのか。孤独の中でも愛は成立するのか。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">この物語を貫くテーマ・概念を一言で表すとしたら？</div>
-          <textarea class="q-input" id="f_theme_t" rows="2"
-            placeholder="例：「許し」「再生」「断絶と繋がり」「失われた時間」"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">読者に一緒に考えてほしいこと、問いかけたいことは？</div>
-          <textarea class="q-input" id="f_theme_r" rows="2"
-            placeholder="例：あなたの「普通」は誰かの「異常」かもしれない。選ばなかった人生はどこへ消えるのか。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">自由メモ（参考作品・引用・インスピレーションなど）</div>
-          <textarea class="q-input" id="f_theme_n" rows="4"
-            placeholder="テーマに関連するメモを自由に…"></textarea>
-        </div>
-      </div>
-
-      <!-- PAGE 1: 届けたい感情・体験 -->
-      <div class="page" data-page="1">
-        <div class="sec-heading">
-          <span class="sec-icon" style="background:var(--tab2)">💚</span>届けたい感情・体験
-        </div>
-        <p class="sec-desc">読者の心と体に刻みたい感情・体験を具体的に描き出しましょう。</p>
-
-        <div class="q-block">
-          <div class="q-label">読者に感じてほしい感情は何ですか？（3つまで）</div>
-          <textarea class="q-input" id="f_emo_f" rows="2"
-            placeholder="例：静かな哀愁、じわりとした希望、ぞくっとするような高揚感、安堵"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">読書中、どんな体験をしてほしいですか？</div>
-          <textarea class="q-input" id="f_emo_e" rows="2"
-            placeholder="例：現実を忘れて物語に没頭する体験。主人公と同化して涙を流す体験。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">本を閉じた後、読者の心に残したいものは？</div>
-          <textarea class="q-input" id="f_emo_a" rows="2"
-            placeholder="例：何かに向き合う小さな勇気。ほんのりとした余韻。今まで見えなかったものへの気づき。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">自由メモ</div>
-          <textarea class="q-input" id="f_emo_n" rows="4"
-            placeholder="感情・体験に関連するメモを自由に…"></textarea>
-        </div>
-      </div>
-
-      <!-- PAGE 2: 自分の核心・動機 -->
-      <div class="page" data-page="2">
-        <div class="sec-heading">
-          <span class="sec-icon" style="background:var(--tab3)">🌀</span>自分の核心・創作動機
-        </div>
-        <p class="sec-desc">なぜあなたが書くのか。その根っこを掘り下げましょう。</p>
-
-        <div class="q-block">
-          <div class="q-label">なぜこの物語を、あなたが書くのですか？</div>
-          <textarea class="q-input" id="f_mot_w" rows="2"
-            placeholder="例：幼少期の孤独の記憶を昇華したい。誰にも言えなかった問いを形にしたい。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">この作品と、あなた自身との繋がりは？</div>
-          <textarea class="q-input" id="f_mot_c" rows="2"
-            placeholder="例：主人公の葛藤は、10年前の自分が抱えていたものだ。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">あなたにしか書けない、この作品の「固有性」とは？</div>
-          <textarea class="q-input" id="f_mot_u" rows="2"
-            placeholder="例：地元の山村の細やかな風景と生活感。異なる価値観を持つ人物への深い共感。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">自由メモ（衝動・原風景・忘れたくない言葉など）</div>
-          <textarea class="q-input" id="f_mot_n" rows="4"
-            placeholder="創作の源泉に関するメモを自由に…"></textarea>
-        </div>
-      </div>
-
-      <!-- PAGE 3: 理想の読者像 -->
-      <div class="page" data-page="3">
-        <div class="sec-heading">
-          <span class="sec-icon" style="background:var(--tab4)">📮</span>理想の読者像
-        </div>
-        <p class="sec-desc">この本を手に取る「あの人」の姿を、鮮明に思い描きましょう。</p>
-
-        <div class="q-block">
-          <div class="q-label">一番届けたい人は、どんな人ですか？（具体的に）</div>
-          <textarea class="q-input" id="f_rdr_w" rows="2"
-            placeholder="例：30代・仕事に行き詰まりを感じ始めた人。かつて夢を諦めた記憶を持つ人。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">その人が抱えている悩み・渇望・問いは何ですか？</div>
-          <textarea class="q-input" id="f_rdr_s" rows="2"
-            placeholder="例：「自分の人生はこれでよかったのか」という問い。誰かに「あなたは正しい」と言ってほしいという渇望。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">この本を読んだ後、その人の何が変わってほしいですか？</div>
-          <textarea class="q-input" id="f_rdr_c" rows="2"
-            placeholder="例：朝、少しだけ顔を上げて歩けるようになってほしい。自分を赦せるきっかけになってほしい。"></textarea>
-        </div>
-        <hr class="divider">
-        <div class="q-block">
-          <div class="q-label">その読者への手紙（自由に書いてみてください）</div>
-          <textarea class="q-input" id="f_rdr_n" rows="4"
-            placeholder="「この本を読んでくれているあなたへ…」"></textarea>
-        </div>
-      </div>
-
-    </div><!-- /page-area -->
-
-    <!-- Footer -->
-    <div class="nb-footer">
-      <span class="last-saved-txt" id="lastSavedTxt">—</span>
-      <button class="reset-btn" id="resetBtn">⚙ 設定をリセット</button>
+    <div class="shelf-author" id="shelfAuthor">——</div>
+    <div class="proj-list" id="projList"></div>
+    <div class="shelf-footer">
+      <button class="shelf-reset-btn" id="resetBtn">⚙ Firebase設定をリセット</button>
     </div>
+  </div>
 
-  </div><!-- /notebook -->
-</div><!-- /notebook-wrapper -->
+  <!-- ── Notebook ── -->
+  <div class="notebook-wrapper">
+    <div class="spiral-binding" id="spiralEl"></div>
+
+    <div class="notebook">
+
+      <!-- Header -->
+      <div class="nb-header">
+        <div class="nb-title-block">
+          <div class="title" id="nbProjectTitle">——</div>
+          <div class="subtitle" id="nbAuthorSub">小説家のビジョン手帳</div>
+        </div>
+        <div class="save-indicator">
+          <div class="save-dot" id="saveDot"></div>
+          <span id="saveStatusTxt">保存済み</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="0">🔑 テーマと問い</button>
+        <button class="tab-btn"        data-tab="1">💚 感情・体験</button>
+        <button class="tab-btn"        data-tab="2">🌀 核心・動機</button>
+        <button class="tab-btn"        data-tab="3">📮 読者像</button>
+      </div>
+
+      <!-- Pages -->
+      <div class="page-area" id="pageArea">
+
+        <!-- No project selected -->
+        <div id="noProjectMsg" class="no-project-msg">
+          <div class="big-icon">📚</div>
+          <p>左のサイドバーから作品を選ぶか、<br>「＋」ボタンで新しい作品を追加してください。</p>
+        </div>
+
+        <!-- PAGE 0: テーマと問い -->
+        <div class="page active" data-page="0" id="pagesWrapper" style="display:none">
+          <div class="sec-heading"><span class="sec-icon" style="background:var(--tab1)">🔑</span>テーマと問い</div>
+          <p class="sec-desc">作品の骨格となる「問い」と「テーマ」を言語化しましょう。</p>
+          <div class="q-block">
+            <div class="q-label">この作品が問いかける、核心的な「問い」は何ですか？</div>
+            <textarea class="q-input" id="f_theme_q" rows="2" placeholder="例：人は本当に変われるのか。孤独の中でも愛は成立するのか。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">この物語を貫くテーマ・概念を一言で表すとしたら？</div>
+            <textarea class="q-input" id="f_theme_t" rows="2" placeholder="例：「許し」「再生」「断絶と繋がり」「失われた時間」"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">読者に一緒に考えてほしいこと、問いかけたいことは？</div>
+            <textarea class="q-input" id="f_theme_r" rows="2" placeholder="例：あなたの「普通」は誰かの「異常」かもしれない。選ばなかった人生はどこへ消えるのか。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">自由メモ（参考作品・引用・インスピレーションなど）</div>
+            <textarea class="q-input" id="f_theme_n" rows="4" placeholder="テーマに関連するメモを自由に…"></textarea>
+          </div>
+        </div>
+
+        <!-- PAGE 1: 届けたい感情・体験 -->
+        <div class="page" data-page="1">
+          <div class="sec-heading"><span class="sec-icon" style="background:var(--tab2)">💚</span>届けたい感情・体験</div>
+          <p class="sec-desc">読者の心と体に刻みたい感情・体験を具体的に描き出しましょう。</p>
+          <div class="q-block">
+            <div class="q-label">読者に感じてほしい感情は何ですか？（3つまで）</div>
+            <textarea class="q-input" id="f_emo_f" rows="2" placeholder="例：静かな哀愁、じわりとした希望、ぞくっとするような高揚感、安堵"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">読書中、どんな体験をしてほしいですか？</div>
+            <textarea class="q-input" id="f_emo_e" rows="2" placeholder="例：現実を忘れて物語に没頭する体験。主人公と同化して涙を流す体験。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">本を閉じた後、読者の心に残したいものは？</div>
+            <textarea class="q-input" id="f_emo_a" rows="2" placeholder="例：何かに向き合う小さな勇気。ほんのりとした余韻。今まで見えなかったものへの気づき。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">自由メモ</div>
+            <textarea class="q-input" id="f_emo_n" rows="4" placeholder="感情・体験に関連するメモを自由に…"></textarea>
+          </div>
+        </div>
+
+        <!-- PAGE 2: 自分の核心・動機 -->
+        <div class="page" data-page="2">
+          <div class="sec-heading"><span class="sec-icon" style="background:var(--tab3)">🌀</span>自分の核心・創作動機</div>
+          <p class="sec-desc">なぜあなたが書くのか。その根っこを掘り下げましょう。</p>
+          <div class="q-block">
+            <div class="q-label">なぜこの物語を、あなたが書くのですか？</div>
+            <textarea class="q-input" id="f_mot_w" rows="2" placeholder="例：幼少期の孤独の記憶を昇華したい。誰にも言えなかった問いを形にしたい。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">この作品と、あなた自身との繋がりは？</div>
+            <textarea class="q-input" id="f_mot_c" rows="2" placeholder="例：主人公の葛藤は、10年前の自分が抱えていたものだ。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">あなたにしか書けない、この作品の「固有性」とは？</div>
+            <textarea class="q-input" id="f_mot_u" rows="2" placeholder="例：地元の山村の細やかな風景と生活感。異なる価値観を持つ人物への深い共感。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">自由メモ（衝動・原風景・忘れたくない言葉など）</div>
+            <textarea class="q-input" id="f_mot_n" rows="4" placeholder="創作の源泉に関するメモを自由に…"></textarea>
+          </div>
+        </div>
+
+        <!-- PAGE 3: 理想の読者像 -->
+        <div class="page" data-page="3">
+          <div class="sec-heading"><span class="sec-icon" style="background:var(--tab4)">📮</span>理想の読者像</div>
+          <p class="sec-desc">この本を手に取る「あの人」の姿を、鮮明に思い描きましょう。</p>
+          <div class="q-block">
+            <div class="q-label">一番届けたい人は、どんな人ですか？（具体的に）</div>
+            <textarea class="q-input" id="f_rdr_w" rows="2" placeholder="例：30代・仕事に行き詰まりを感じ始めた人。かつて夢を諦めた記憶を持つ人。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">その人が抱えている悩み・渇望・問いは何ですか？</div>
+            <textarea class="q-input" id="f_rdr_s" rows="2" placeholder="例：「自分の人生はこれでよかったのか」という問い。誰かに「あなたは正しい」と言ってほしいという渇望。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">この本を読んだ後、その人の何が変わってほしいですか？</div>
+            <textarea class="q-input" id="f_rdr_c" rows="2" placeholder="例：朝、少しだけ顔を上げて歩けるようになってほしい。自分を赦せるきっかけになってほしい。"></textarea>
+          </div>
+          <hr class="divider">
+          <div class="q-block">
+            <div class="q-label">その読者への手紙（自由に書いてみてください）</div>
+            <textarea class="q-input" id="f_rdr_n" rows="4" placeholder="「この本を読んでくれているあなたへ…」"></textarea>
+          </div>
+        </div>
+
+      </div><!-- /page-area -->
+
+      <!-- Footer -->
+      <div class="nb-footer">
+        <span class="last-saved-txt" id="lastSavedTxt">—</span>
+      </div>
+
+    </div><!-- /notebook -->
+  </div><!-- /notebook-wrapper -->
+</div><!-- /appEl -->
 
 
 <!-- =================== FIREBASE + APP LOGIC =================== -->
 <script type="module">
   import { initializeApp, getApps, getApp }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, getDocs,
+    deleteDoc, collection, serverTimestamp, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // ── Field IDs (all textarea ids)
   const FIELDS = [
     'f_theme_q','f_theme_t','f_theme_r','f_theme_n',
     'f_emo_f',  'f_emo_e',  'f_emo_a',  'f_emo_n',
@@ -509,28 +598,15 @@
     'f_rdr_w',  'f_rdr_s',  'f_rdr_c',  'f_rdr_n',
   ];
 
-  let db = null, docId = '', saveTimer = null;
+  // ── State
+  let db = null;
+  let authorId = '';
+  let currentProjId = null;
+  let saveTimer = null;
+  let projects = {};      // { [projId]: { title, updatedAt } }
+  let isDirty = false;
 
-  // ── Build spiral rings
-  function buildSpiral() {
-    const el = document.getElementById('spiralEl');
-    for (let i = 0; i < 17; i++) {
-      const r = document.createElement('div');
-      r.className = 's-ring';
-      el.appendChild(r);
-    }
-  }
-
-  // ── Tab switching
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.tab);
-      document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
-    });
-  });
-
-  // ── Save status
+  // ── Helpers: save status
   function setSaveStatus(state) {
     const dot = document.getElementById('saveDot');
     const txt = document.getElementById('saveStatusTxt');
@@ -552,6 +628,228 @@
     el.style.height = el.scrollHeight + 'px';
   }
 
+  // ── Format relative date
+  function relDate(ts) {
+    if (!ts?.toDate) return '';
+    const diff = Date.now() - ts.toDate().getTime();
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return 'たった今';
+    if (min < 60) return `${min}分前`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}時間前`;
+    const d = Math.floor(hr / 24);
+    if (d < 30) return `${d}日前`;
+    return ts.toDate().toLocaleDateString('ja-JP');
+  }
+
+  // ── Firestore paths
+  const projCol = () => collection(db, 'novelist_visions', authorId, 'projects');
+  const projDoc = (id) => doc(db, 'novelist_visions', authorId, 'projects', id);
+
+  // ── Build spiral rings (once)
+  function buildSpiral() {
+    const el = document.getElementById('spiralEl');
+    if (el.children.length) return;
+    for (let i = 0; i < 17; i++) {
+      const r = document.createElement('div');
+      r.className = 's-ring';
+      el.appendChild(r);
+    }
+  }
+
+  // ── Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.tab);
+      document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+    });
+  });
+
+  // ── Clear all fields
+  function clearFields() {
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.style.height = 'auto'; }
+    });
+  }
+
+  // ── Show / hide pages vs empty state
+  function showPages(show) {
+    document.getElementById('noProjectMsg').style.display  = show ? 'none'  : 'flex';
+    document.getElementById('pagesWrapper').style.display  = show ? 'block' : 'none';
+    // The other .page elements (siblings after pagesWrapper) need to show/hide too
+    document.querySelectorAll('.page[data-page]').forEach(p => {
+      p.style.display = show ? (p.classList.contains('active') ? 'block' : 'none') : 'none';
+    });
+    if (show) {
+      // Respect active tab
+      const activeTab = document.querySelector('.tab-btn.active');
+      const idx = activeTab ? parseInt(activeTab.dataset.tab) : 0;
+      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+    }
+  }
+
+  // ── Render project list in sidebar
+  function renderProjectList() {
+    const list = document.getElementById('projList');
+    list.innerHTML = '';
+    const ids = Object.keys(projects).sort((a,b) => {
+      const ta = projects[a].updatedAt?.toDate?.()?.getTime() || 0;
+      const tb = projects[b].updatedAt?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    });
+
+    if (ids.length === 0) {
+      list.innerHTML = '<div class="shelf-empty">まだ作品がありません。<br>「＋」から追加してください。</div>';
+      return;
+    }
+
+    ids.forEach(id => {
+      const p = projects[id];
+      const item = document.createElement('div');
+      item.className = 'proj-item' + (id === currentProjId ? ' active' : '');
+      item.dataset.id = id;
+
+      item.innerHTML = `
+        <span class="proj-icon">📖</span>
+        <div class="proj-info">
+          <div class="proj-title">${escHtml(p.title || '無題')}</div>
+          <div class="proj-date">${relDate(p.updatedAt)}</div>
+        </div>
+        <div class="proj-actions">
+          <button class="proj-action-btn rename" title="名前を変更">✎</button>
+          <button class="proj-action-btn del" title="削除">✕</button>
+        </div>
+      `;
+
+      // Click to switch
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.proj-action-btn')) return;
+        switchToProject(id);
+      });
+
+      // Rename
+      item.querySelector('.rename').addEventListener('click', (e) => {
+        e.stopPropagation();
+        startRename(id, item);
+      });
+
+      // Delete
+      item.querySelector('.del').addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteProject(id);
+      });
+
+      list.appendChild(item);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Load project list from Firestore
+  async function loadProjectList() {
+    try {
+      const snap = await getDocs(projCol());
+      projects = {};
+      snap.forEach(d => { projects[d.id] = d.data(); });
+      renderProjectList();
+
+      // Restore last-used project
+      const lastId = localStorage.getItem(`vnb_lastproj_${authorId}`);
+      const firstId = Object.keys(projects).sort((a,b) => {
+        const ta = projects[a].updatedAt?.toDate?.()?.getTime() || 0;
+        const tb = projects[b].updatedAt?.toDate?.()?.getTime() || 0;
+        return tb - ta;
+      })[0];
+      const toOpen = (lastId && projects[lastId]) ? lastId : firstId;
+
+      if (toOpen) {
+        await switchToProject(toOpen);
+      } else {
+        showPages(false);
+        document.getElementById('nbProjectTitle').textContent = '——';
+      }
+    } catch (e) {
+      console.error('loadProjectList error:', e);
+    }
+  }
+
+  // ── Switch to a project (save current first)
+  async function switchToProject(id) {
+    if (id === currentProjId) return;
+    if (currentProjId && isDirty) {
+      clearTimeout(saveTimer);
+      await saveCurrentProject();
+    }
+    currentProjId = id;
+    isDirty = false;
+    localStorage.setItem(`vnb_lastproj_${authorId}`, id);
+    renderProjectList();
+    await loadCurrentProject();
+  }
+
+  // ── Load current project data into fields
+  async function loadCurrentProject() {
+    if (!currentProjId) return;
+    setSaveStatus('loading');
+    clearFields();
+    showPages(true);
+    try {
+      const snap = await getDoc(projDoc(currentProjId));
+      if (snap.exists()) {
+        const data = snap.data();
+        FIELDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) { el.value = data[id]; autoResize(el); }
+        });
+        const title = data.title || '無題';
+        document.getElementById('nbProjectTitle').textContent = title;
+        if (data.updatedAt?.toDate) {
+          document.getElementById('lastSavedTxt').textContent =
+            '最終保存: ' + data.updatedAt.toDate().toLocaleString('ja-JP');
+        }
+      } else {
+        document.getElementById('nbProjectTitle').textContent = projects[currentProjId]?.title || '無題';
+        document.getElementById('lastSavedTxt').textContent = '未保存';
+      }
+      setSaveStatus('saved');
+    } catch(e) {
+      console.error('loadCurrentProject error:', e);
+      setSaveStatus('error');
+    }
+  }
+
+  // ── Save current project to Firestore
+  async function saveCurrentProject() {
+    if (!db || !currentProjId) return;
+    setSaveStatus('saving');
+    isDirty = false;
+    const payload = {
+      title: projects[currentProjId]?.title || '無題',
+      updatedAt: serverTimestamp(),
+    };
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) payload[id] = el.value;
+    });
+    try {
+      await setDoc(projDoc(currentProjId), payload, { merge: true });
+      const now = new Date().toLocaleString('ja-JP');
+      document.getElementById('lastSavedTxt').textContent = '最終保存: ' + now;
+      // Update local cache
+      if (projects[currentProjId]) projects[currentProjId].updatedAt = { toDate: () => new Date() };
+      renderProjectList();
+      setSaveStatus('saved');
+    } catch(e) {
+      console.error('saveCurrentProject error:', e);
+      isDirty = true;
+      setSaveStatus('error');
+    }
+  }
+
   // ── Attach input listeners
   function attachListeners() {
     FIELDS.forEach(id => {
@@ -559,57 +857,91 @@
       if (!el) return;
       el.addEventListener('input', () => {
         autoResize(el);
+        isDirty = true;
         setSaveStatus('saving');
         clearTimeout(saveTimer);
-        saveTimer = setTimeout(saveData, 1600);
+        saveTimer = setTimeout(() => saveCurrentProject(), 1600);
       });
     });
   }
 
-  // ── Load data from Firestore
-  async function loadData() {
-    setSaveStatus('loading');
+  // ── Create new project
+  async function createProject(title) {
+    const id = 'proj_' + Date.now();
+    const data = { title, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    FIELDS.forEach(f => { data[f] = ''; });
     try {
-      const snap = await getDoc(doc(db, 'novelist_visions', docId));
-      if (snap.exists()) {
-        const data = snap.data();
-        FIELDS.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data[id] !== undefined) { el.value = data[id]; autoResize(el); }
-        });
-        if (data.updatedAt?.toDate) {
-          document.getElementById('lastSavedTxt').textContent =
-            '最終保存: ' + data.updatedAt.toDate().toLocaleString('ja-JP');
-        }
+      await setDoc(projDoc(id), data);
+      projects[id] = { title, updatedAt: { toDate: () => new Date() } };
+      renderProjectList();
+      await switchToProject(id);
+    } catch(e) {
+      console.error('createProject error:', e);
+      alert('作品の作成に失敗しました: ' + e.message);
+    }
+  }
+
+  // ── Delete project
+  async function deleteProject(id) {
+    const title = projects[id]?.title || '無題';
+    if (!confirm(`「${title}」を削除しますか？\nこの操作は取り消せません。`)) return;
+    try {
+      await deleteDoc(projDoc(id));
+      delete projects[id];
+      if (currentProjId === id) {
+        currentProjId = null;
+        clearFields();
+        showPages(false);
+        document.getElementById('nbProjectTitle').textContent = '——';
+        document.getElementById('lastSavedTxt').textContent = '—';
       }
-      setSaveStatus('saved');
-    } catch (e) {
-      console.error('Load error:', e);
-      setSaveStatus('error');
+      renderProjectList();
+      // Auto-select next project
+      const remaining = Object.keys(projects);
+      if (remaining.length > 0) {
+        await switchToProject(remaining[0]);
+      }
+    } catch(e) {
+      console.error('deleteProject error:', e);
+      alert('削除に失敗しました: ' + e.message);
     }
   }
 
-  // ── Save data to Firestore
-  async function saveData() {
-    if (!db) return;
-    setSaveStatus('saving');
-    const payload = { updatedAt: serverTimestamp() };
-    FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) payload[id] = el.value;
+  // ── Rename inline
+  function startRename(id, item) {
+    const titleEl = item.querySelector('.proj-title');
+    const original = projects[id]?.title || '無題';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'proj-rename-input';
+    input.value = original;
+    input.maxLength = 40;
+    titleEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const commit = async () => {
+      const newTitle = input.value.trim() || original;
+      if (newTitle !== original) {
+        projects[id].title = newTitle;
+        try {
+          await setDoc(projDoc(id), { title: newTitle }, { merge: true });
+          if (currentProjId === id) {
+            document.getElementById('nbProjectTitle').textContent = newTitle;
+          }
+        } catch(e) { console.error('rename error:', e); }
+      }
+      renderProjectList();
+    };
+
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { input.value = original; input.blur(); }
     });
-    try {
-      await setDoc(doc(db, 'novelist_visions', docId), payload, { merge: true });
-      document.getElementById('lastSavedTxt').textContent =
-        '最終保存: ' + new Date().toLocaleString('ja-JP');
-      setSaveStatus('saved');
-    } catch (e) {
-      console.error('Save error:', e);
-      setSaveStatus('error');
-    }
   }
 
-  // ── Parse Firebase config string
+  // ── Parse Firebase config
   function parseConfig(raw) {
     const match = raw.trim().match(/\{[\s\S]*\}/);
     if (!match) throw new Error('JSON オブジェクト { } が見つかりません');
@@ -617,25 +949,63 @@
   }
 
   // ── Initialize app
-  function initApp(config, author) {
+  async function initApp(config, author) {
     try {
       const app = getApps().length === 0 ? initializeApp(config) : getApp();
       db = getFirestore(app);
-      docId = encodeURIComponent(author.trim().toLowerCase().replace(/\s+/g, '_'));
+      authorId = encodeURIComponent(author.trim().toLowerCase().replace(/\s+/g, '_'));
 
       document.getElementById('setupModal').classList.add('hidden');
-      const nb = document.getElementById('notebookEl');
-      nb.style.display = 'flex';
-      nb.classList.add('visible');
-      document.getElementById('authorDisplay').textContent = author;
+      const appEl = document.getElementById('appEl');
+      appEl.style.display = 'flex';
+      appEl.classList.add('visible');
+      document.getElementById('shelfAuthor').textContent = author;
+      document.getElementById('nbAuthorSub').textContent = author + ' の手帳';
 
       buildSpiral();
-      loadData();
       attachListeners();
-    } catch (e) {
+      await loadProjectList();
+    } catch(e) {
       document.getElementById('configError').textContent = 'Firebase 初期化エラー: ' + e.message;
     }
   }
+
+  // ── Add project button
+  document.getElementById('addProjBtn').addEventListener('click', () => {
+    document.getElementById('newProjTitle').value = '';
+    document.getElementById('newProjModal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('newProjTitle').focus(), 50);
+  });
+
+  document.getElementById('newProjCancel').addEventListener('click', () => {
+    document.getElementById('newProjModal').classList.add('hidden');
+  });
+
+  document.getElementById('newProjCreate').addEventListener('click', async () => {
+    const title = document.getElementById('newProjTitle').value.trim();
+    if (!title) { document.getElementById('newProjTitle').focus(); return; }
+    document.getElementById('newProjModal').classList.add('hidden');
+    await createProject(title);
+  });
+
+  document.getElementById('newProjTitle').addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      const title = e.target.value.trim();
+      if (!title) return;
+      document.getElementById('newProjModal').classList.add('hidden');
+      await createProject(title);
+    }
+    if (e.key === 'Escape') {
+      document.getElementById('newProjModal').classList.add('hidden');
+    }
+  });
+
+  // Click outside modal to close
+  document.getElementById('newProjModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('newProjModal')) {
+      document.getElementById('newProjModal').classList.add('hidden');
+    }
+  });
 
   // ── Setup button
   document.getElementById('setupBtn').addEventListener('click', () => {
@@ -643,15 +1013,11 @@
     const author = document.getElementById('authorInput').value.trim();
     const errEl  = document.getElementById('configError');
     errEl.textContent = '';
-
     if (!author) { errEl.textContent = '名前を入力してください。'; return; }
     let config;
     try { config = parseConfig(raw); }
-    catch (e) { errEl.textContent = 'JSON 形式エラー: ' + e.message; return; }
-    if (!config.projectId || !config.apiKey) {
-      errEl.textContent = 'projectId と apiKey が必要です。'; return;
-    }
-
+    catch(e) { errEl.textContent = 'JSON 形式エラー: ' + e.message; return; }
+    if (!config.projectId || !config.apiKey) { errEl.textContent = 'projectId と apiKey が必要です。'; return; }
     localStorage.setItem('vnb_config', JSON.stringify(config));
     localStorage.setItem('vnb_author', author);
     initApp(config, author);
@@ -659,14 +1025,14 @@
 
   // ── Reset
   document.getElementById('resetBtn').addEventListener('click', () => {
-    if (confirm('設定をリセットしますか？（Firestore 上のデータは残ります）')) {
+    if (confirm('Firebase設定をリセットしますか？（Firestore上のデータは残ります）')) {
       localStorage.removeItem('vnb_config');
       localStorage.removeItem('vnb_author');
       location.reload();
     }
   });
 
-  // ── Auto-load from localStorage
+  // ── Auto-load
   const savedCfg    = localStorage.getItem('vnb_config');
   const savedAuthor = localStorage.getItem('vnb_author');
   if (savedCfg && savedAuthor) {
@@ -675,7 +1041,7 @@
       document.getElementById('configInput').value = JSON.stringify(cfg, null, 2);
       document.getElementById('authorInput').value  = savedAuthor;
       initApp(cfg, savedAuthor);
-    } catch (_) { /* show modal */ }
+    } catch(_) { /* show modal */ }
   }
 </script>
 </body>
