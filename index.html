@@ -942,6 +942,7 @@
 
     input.addEventListener('blur', commit);
     input.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return; // IME変換中は無視
       if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
       if (e.key === 'Escape') { input.value = original; input.blur(); }
     });
