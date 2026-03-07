@@ -470,7 +470,7 @@
         </div>
 
         <!-- PAGE 0: テーマと問い -->
-        <div class="page active" data-page="0" id="pagesWrapper" style="display:none">
+        <div class="page active" data-page="0" id="pagesWrapper">
           <div class="sec-heading"><span class="sec-icon" style="background:var(--tab1)">🔑</span>テーマと問い</div>
           <p class="sec-desc">作品の骨格となる「問い」と「テーマ」を言語化しましょう。</p>
           <div class="q-block">
@@ -657,12 +657,21 @@
     }
   }
 
-  // ── Tab switching
+  // ── Tab switching core (updates both class AND style.display)
+  function switchToTab(idx) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+    document.querySelectorAll('.page').forEach((p, i) => {
+      const active = i === idx;
+      p.classList.toggle('active', active);
+      p.style.display = active ? 'block' : 'none';
+    });
+  }
+
+  // ── Tab click handlers
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.tab);
-      document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+      if (!currentProjId) return;
+      switchToTab(parseInt(btn.dataset.tab));
     });
   });
 
@@ -676,17 +685,14 @@
 
   // ── Show / hide pages vs empty state
   function showPages(show) {
-    document.getElementById('noProjectMsg').style.display  = show ? 'none'  : 'flex';
-    document.getElementById('pagesWrapper').style.display  = show ? 'block' : 'none';
-    // The other .page elements (siblings after pagesWrapper) need to show/hide too
-    document.querySelectorAll('.page[data-page]').forEach(p => {
-      p.style.display = show ? (p.classList.contains('active') ? 'block' : 'none') : 'none';
-    });
+    document.getElementById('noProjectMsg').style.display = show ? 'none' : 'flex';
     if (show) {
-      // Respect active tab
+      // Show active tab's page, hide others
       const activeTab = document.querySelector('.tab-btn.active');
-      const idx = activeTab ? parseInt(activeTab.dataset.tab) : 0;
-      document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
+      switchToTab(activeTab ? parseInt(activeTab.dataset.tab) : 0);
+    } else {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
     }
   }
 
