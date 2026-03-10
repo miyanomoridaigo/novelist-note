@@ -940,10 +940,16 @@
       renderProjectList();
     };
 
+    // IME変換中フラグ（Chrome では compositionend が keydown より先に発火するため
+    // setTimeout で1ティック遅らせて同一ティック内の Enter をブロックする）
+    let composing = false;
+    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionend',   () => { setTimeout(() => { composing = false; }, 0); });
+
     input.addEventListener('blur', commit);
     input.addEventListener('keydown', (e) => {
-      if (e.isComposing || e.keyCode === 229) return; // IME変換中は無視
-      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (composing) return;
+      if (e.key === 'Enter')  { e.preventDefault(); input.blur(); }
       if (e.key === 'Escape') { input.value = original; input.blur(); }
     });
   }
@@ -995,7 +1001,13 @@
     await createProject(title);
   });
 
-  document.getElementById('newProjTitle').addEventListener('keydown', async (e) => {
+  // 新規作品タイトル入力でも同様にIMEガード
+  let newProjComposing = false;
+  const newProjTitleEl = document.getElementById('newProjTitle');
+  newProjTitleEl.addEventListener('compositionstart', () => { newProjComposing = true; });
+  newProjTitleEl.addEventListener('compositionend',   () => { setTimeout(() => { newProjComposing = false; }, 0); });
+  newProjTitleEl.addEventListener('keydown', async (e) => {
+    if (newProjComposing) return;
     if (e.key === 'Enter') {
       const title = e.target.value.trim();
       if (!title) return;
